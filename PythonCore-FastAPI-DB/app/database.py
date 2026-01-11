@@ -17,3 +17,13 @@ Base = declarative_base()
 # been imported elsewhere before a DB operation.
 import app.models.sex  # noqa: F401
 import app.models.student  # noqa: F401
+import app.models.student_score  # noqa: F401
+
+
+def get_db():
+    """Dependency that yields a SQLAlchemy Session and ensures it is closed."""
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()

@@ -2,6 +2,38 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "name": "Python: Run FastAPI (run.py)",
+      "type": "python",
+      "request": "launch",
+      "program": "${workspaceFolder}/run.py",
+      "console": "integratedTerminal",
+      "env": {},
+      "justMyCode": true
+    },
+    {
+      "name": "Python: Uvicorn (module)",
+      "type": "python",
+      "request": "launch",
+      "module": "uvicorn",
+      "args": ["app.main:app", "--host", "127.0.0.1", "--port", "8000"],
+      "jinja": true,
+      "justMyCode": true
+    },
+    {
+      "name": "Python: Attach",
+      "type": "python",
+      "request": "attach",
+      "connect": {
+        "host": "127.0.0.1",
+        "port": 5678
+      }
+    }
+  ]
+}
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
       "name": "Debug FastAPI",
       "type": "python",
       "request": "launch",
