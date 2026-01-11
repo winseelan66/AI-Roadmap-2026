@@ -35,3 +35,11 @@ class StudentScoreResponse(BaseModel):
 
     class Config:
         orm_mode = True
+
+class StudentAggregateResponse(BaseModel):
+    student_id: int
+    total_score: float
+    average_score: float
+
+    class Config:
+        orm_mode = True

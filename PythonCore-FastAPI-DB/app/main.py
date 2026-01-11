@@ -27,14 +27,12 @@ from fastapi import FastAPI
 from app.routers import sex
 from app.routers import student
 from app.routers import student_score
-from app.api import student_score as api_student_score
 
 app = FastAPI(title="PythonCore FastAPI DB")
 
 app.include_router(sex.router)
 app.include_router(student.router)
 app.include_router(student_score.router)
-app.include_router(api_student_score.router)
 
 @app.get("/")
 def root():

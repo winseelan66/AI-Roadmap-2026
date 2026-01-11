@@ -1,11 +1,13 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
+from sqlalchemy import func
 from typing import List
 
 from app.database import SessionLocal
 from app.models.student_score import StudentScore
 from decimal import Decimal, InvalidOperation
 from app.schemas.student_score import (
+    StudentAggregateResponse,
     StudentScoreCreate,
     StudentScoreUpdate,
     StudentScoreResponse,
@@ -25,6 +27,29 @@ def get_db():
 @router.get("/", response_model=List[StudentScoreResponse])
 def get_all_scores(db: Session = Depends(get_db)):
     return db.query(StudentScore).all()
+
+
+@router.get("/aggregate", response_model=List[StudentAggregateResponse])
+def get_aggregate_scores(db: Session = Depends(get_db)):
+    total_expr = (
+        StudentScore.tamil
+        + StudentScore.english
+        + StudentScore.maths
+        + StudentScore.science
+        + StudentScore.socail_science
+    )
+
+    result = (
+        db.query(
+            StudentScore.student_id.label("student_id"),
+            func.sum(total_expr).label("total_score"),
+            func.avg(total_expr / 5.0).label("average_score"),
+        )
+        .group_by(StudentScore.student_id)
+        .all()
+    )
+
+    return result
 
 
 @router.get("/{score_id}", response_model=StudentScoreResponse)
