@@ -1,0 +1,85 @@
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+from sklearn.cluster import KMeans
+from sklearn.preprocessing import StandardScaler
+
+from pathlib import Path
+
+BASE_DIR = Path(__file__).resolve().parent
+DATA_PATH = BASE_DIR / "data" / "Mall_Customers.csv"
+
+def load_and_prepare_data():
+    df = pd.read_csv(DATA_PATH)
+
+    features = df[['Age', 'Annual Income (k$)', 'Spending Score (1-100)']]
+
+    scaler = StandardScaler()
+    scaled_features = scaler.fit_transform(features)
+
+    return df, scaled_features
+
+
+def elbow_method(scaled_features):
+    wcss = []
+
+    for k in range(1, 11):
+        kmeans = KMeans(n_clusters=k, random_state=42)
+        kmeans.fit(scaled_features)
+        wcss.append(kmeans.inertia_)
+
+    plt.figure(figsize=(8, 5))
+    plt.plot(range(1, 11), wcss, marker='o')
+    plt.title("Elbow Method")
+    plt.xlabel("Number of Clusters")
+    plt.ylabel("WCSS")
+    plt.tight_layout()
+    plt.savefig("elbow.png")
+    plt.close()
+
+    return "elbow.png"
+
+
+def apply_kmeans(df, scaled_features, k=5):
+    kmeans = KMeans(n_clusters=k, random_state=42)
+    clusters = kmeans.fit_predict(scaled_features)
+
+    df['Cluster'] = clusters
+    return df
+
+
+def visualize_clusters(df):
+    plt.figure(figsize=(9, 6))
+    sns.scatterplot(
+        x='Annual Income (k$)',
+        y='Spending Score (1-100)',
+        hue='Cluster',
+        palette='Set2',
+        data=df
+    )
+
+    plt.title("Customer Segments")
+    plt.tight_layout()
+    plt.savefig("clusters.png")
+    plt.close()
+
+    return "clusters.png"
+
+
+def summarize_clusters(df):
+    summary = (
+        df
+        .groupby('Cluster')
+        .agg(
+            Avg_Age=('Age', 'mean'),
+            Avg_Income=('Annual Income (k$)', 'mean'),
+            Avg_Spending=('Spending Score (1-100)', 'mean'),
+            Count=('CustomerID', 'count')
+        )
+        .round(2)
+        .reset_index()
+    )
+
+    return summary.to_dict(orient="records")
